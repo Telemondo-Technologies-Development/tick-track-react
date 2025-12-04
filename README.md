@@ -1,16 +1,92 @@
-# React + Vite
+Offline Tick-Track Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a single-page time tracking application built with React and optimized for offline use. It utilizes IndexedDB via the Dexie.js library for persistent, client-side data storage, ensuring users can track tasks even without an internet connection.
 
-Currently, two official plugins are available:
+Key Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Offline First: All tracking data is stored locally in the browser's IndexedDB.
 
-## React Compiler
+Persistent Storage: Data is saved using Dexie.js and persists across browser sessions.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Real-time UI: Uses dexie-react-hooks (useLiveQuery) for instant updates to the history list upon saving or deleting a ticket.
 
-## Expanding the ESLint configuration
+Modular Architecture: Code is separated into components, hooks, and utilities for maintainability (DRY Principle).
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Ticket Management: Users can name a ticket, start/stop a timer, and choose to save or cancel the recorded session.
+
+Safety Confirmation: Includes a custom confirmation dialog for permanent ticket deletion.
+
+Tech Stack
+
+Framework: React
+
+Build Tool: Vite (Client-side rendering)
+
+Database: IndexedDB (accessed via Dexie.js)
+
+Styling: Tailwind CSS
+
+Setup and Installation
+
+Follow these steps to get the application running on your local machine.
+
+Prerequisites
+
+You must have Node.js and npm (or yarn/pnpm) installed.
+
+1. Clone the Repository
+
+git clone [YOUR_REPOSITORY_URL]
+cd tick-track-react
+
+
+2. Install Dependencies
+
+The project uses react, dexie, and dexie-react-hooks.
+
+npm install
+
+
+3. Create Necessary Files
+
+Ensure your required modular files are created:
+
+mkdir src/db
+mkdir src/hooks
+mkdir src/utils
+
+# Create files in the terminal
+touch src/db/appDB.js
+touch src/hooks/useTimer.js
+touch src/utils/timeUtils.js
+
+
+(Note: Paste the corresponding code for the application logic into these files.)
+
+4. Run the Application
+
+Start the Vite development server:
+
+npm run dev
+
+
+The application will open in your browser, typically at http://localhost:5173/.
+
+📂 Project Structure
+
+The codebase adheres to the principle of "Separate file per function/code" to ensure a clean, maintainable structure:
+
+tick-track-react/
+├── node_modules/
+├── index.html           # Main entry point (loads React and Tailwind CDN)
+├── package.json         # Lists all dependencies (React, Dexie, Vite)
+├── src/
+│   ├── db/
+│   │   └── appDB.js     # Dexie setup: Defines the IndexedDB schema.
+│   ├── hooks/
+│   │   └── useTimer.js  # Timer Logic: Contains all state management, effects, and handlers (e.g., start/stop/save).
+│   ├── utils/
+│   │   └── timeUtils.js # Utilities: Contains pure helper functions (e.g., formatDuration).
+│   ├── App.jsx          # Presentational Component: Calls hooks and renders the entire UI/Layout.
+│   └── main.jsx         # React Entry: Initializes the React application.
+└── ...
