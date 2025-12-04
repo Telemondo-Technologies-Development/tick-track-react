@@ -70,23 +70,4 @@ Start the Vite development server:
 npm run dev
 
 
-The application will open in your browser, typically at http://localhost:5173/.
 
-📂 Project Structure
-
-The codebase adheres to the principle of "Separate file per function/code" to ensure a clean, maintainable structure:
-
-tick-track-react/
-├── node_modules/
-├── index.html           # Main entry point (loads React and Tailwind CDN)
-├── package.json         # Lists all dependencies (React, Dexie, Vite)
-├── src/
-│   ├── db/
-│   │   └── appDB.js     # Dexie setup: Defines the IndexedDB schema.
-│   ├── hooks/
-│   │   └── useTimer.js  # Timer Logic: Contains all state management, effects, and handlers (e.g., start/stop/save).
-│   ├── utils/
-│   │   └── timeUtils.js # Utilities: Contains pure helper functions (e.g., formatDuration).
-│   ├── App.jsx          # Presentational Component: Calls hooks and renders the entire UI/Layout.
-│   └── main.jsx         # React Entry: Initializes the React application.
-└── ...
