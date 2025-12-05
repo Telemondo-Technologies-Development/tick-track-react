@@ -1,103 +1,123 @@
 import { useState, useEffect, useMemo } from 'react';
-import db from '../db/appDB.js'; 
+import db, { Ticket } from '../db/appDB'; 
+
+interface UseTimerResult {
+    ticketName: string;
+    setTicketName: React.Dispatch<React.SetStateAction<string>>;
+    elapsedTime: number;
+    tempTicket: Ticket | null;
+    step: 'new' | 'running' | 'stopped';
+    handleStartTimer: () => void;
+    handleEndTimer: () => void;
+    handleSave: () => Promise<void>;
+    handleCancel: () => void;
+}
+
+export const useTimer = (): UseTimerResult => {
+    const [ticketName, setTicketName] = useState<string>('');
+    const [isRunning, setIsRunning] = useState<boolean>(false);
+    const [startTime, setStartTime] = useState<number | null>(null);
+    const [elapsedTime, setElapsedTime] = useState<number>(0);
+    const [tempTicket, setTempTicket] = useState<Ticket | null>(null); 
 
 
-export const useTimer = () => {
-  const [ticketName, setTicketName] = useState('');
-  const [isRunning, setIsRunning] = useState(false);
-  const [startTime, setStartTime] = useState(null);
-  const [elapsedTime, setElapsedTime] = useState(0);
-  const [tempTicket, setTempTicket] = useState(null); 
-
- 
-  useEffect(() => {
-    let interval;
-    if (isRunning && startTime !== null) {
-      const start = startTime; 
-      interval = setInterval(() => {
-        setElapsedTime(Date.now() - start);
-      }, 1000);
-    } else {
-      clearInterval(interval);
-    }
-    return () => clearInterval(interval);
-  }, [isRunning, startTime]);
+    useEffect(() => {
+        let interval: number | undefined;
+        if (isRunning && startTime !== null) {
+            const start = startTime; 
+            interval = window.setInterval(() => {
+                setElapsedTime(Date.now() - start);
+            }, 1000);
+        } else {
+            if (interval !== undefined) {
+                clearInterval(interval);
+            }
+        }
+        return () => {
+             if (interval !== undefined) {
+                clearInterval(interval);
+            }
+        };
+    }, [isRunning, startTime]);
 
 
-  const resetState = () => {
-    setTicketName('');
-    setStartTime(null);
-    setElapsedTime(0);
-    setIsRunning(false);
-    setTempTicket(null);
-    document.getElementById('message-box').textContent = "";
-  };
-  
+    const resetState = (): void => {
+        setTicketName('');
+        setStartTime(null);
+        setElapsedTime(0);
+        setIsRunning(false);
+        setTempTicket(null);
 
-
-  const handleStartTimer = () => {
-    if (!ticketName.trim()) {
-      document.getElementById('message-box').textContent = "Ticket name is required!";
-      setTimeout(() => document.getElementById('message-box').textContent = "", 3000);
-      return;
-    }
-    setStartTime(Date.now());
-    setElapsedTime(0);
-    setIsRunning(true);
-    setTempTicket(null); 
-  };
-
-  const handleEndTimer = () => {
-    if (!isRunning) return;
-
-    setIsRunning(false);
-    const endTime = Date.now();
-    const finalDuration = endTime - startTime;
-
-    const newTicket = {
-      name: ticketName.trim(),
-      startTime: startTime,
-      endTime: endTime,
-      durationMs: finalDuration,
+        const msgBox = document.getElementById('message-box');
+        if (msgBox) msgBox.textContent = "";
     };
     
-    setTempTicket(newTicket);
-    setTicketName(newTicket.name);
-  };
-
-  const handleSave = async () => {
-    if (!tempTicket) return;
-    try {
-      await db.tickets.add(tempTicket);
-      resetState();
-    } catch (error) {
-      console.error("Failed to save ticket:", error);
-      document.getElementById('message-box').textContent = "Error saving ticket!";
-    }
-  };
-
-  const handleCancel = () => {
-    resetState();
-  };
-  
- 
-  const step = useMemo(() => {
-    if (isRunning) return 'running';
-    if (tempTicket) return 'stopped';
-    return 'new'; 
-  }, [isRunning, tempTicket]);
 
 
-  return {
-    ticketName,
-    setTicketName,
-    elapsedTime,
-    tempTicket,
-    step,
+    const handleStartTimer = (): void => {
+        if (!ticketName.trim()) {
+            const msgBox = document.getElementById('message-box');
+            if (msgBox) msgBox.textContent = "Ticket name is required!";
+            setTimeout(() => { if (msgBox) msgBox.textContent = ""; }, 3000);
+            return;
+        }
+        setStartTime(Date.now());
+        setElapsedTime(0);
+        setIsRunning(true);
+        setTempTicket(null); 
+    };
+
+    const handleEndTimer = (): void => {
+        if (!isRunning || startTime === null) return;
+
+        setIsRunning(false);
+        const endTime = Date.now();
+        const finalDuration = endTime - startTime;
+
+        const newTicket: Ticket = {
+            name: ticketName.trim(),
+            startTime: startTime as number, 
+            endTime: endTime,
+            durationMs: finalDuration,
+        };
+        
+        setTempTicket(newTicket);
+        setTicketName(newTicket.name);
+    };
+
+    const handleSave = async (): Promise<void> => {
+        if (!tempTicket) return;
+        const msgBox = document.getElementById('message-box');
+        try {
+            await db.tickets.add(tempTicket);
+            resetState();
+        } catch (error) {
+            console.error("Failed to save ticket:", error);
+            if (msgBox) msgBox.textContent = "Error saving ticket!";
+        }
+    };
+
+    const handleCancel = (): void => {
+        resetState();
+    };
     
-    handleStartTimer,
-    handleEndTimer,
-    handleSave,
-    handleCancel,
-  };
+
+    const step = useMemo<'new' | 'running' | 'stopped'>(() => {
+        if (isRunning) return 'running';
+        if (tempTicket) return 'stopped';
+        return 'new'; 
+    }, [isRunning, tempTicket]);
+
+
+    return {
+        ticketName,
+        setTicketName,
+        elapsedTime,
+        tempTicket,
+        step,
+        handleStartTimer,
+        handleEndTimer,
+        handleSave,
+        handleCancel,
+    };
 };
