@@ -3,6 +3,8 @@ import db, { Ticket } from './db/appDB';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useTimer } from './hooks/useTimer.ts';
 import { formatDuration } from './utils/timeUtils.ts';
+import { Button } from "./components/ui/button";
+import { ButtonGroup } from "./components/ui/button-group";
 
 interface DeleteConfirmationModalProps {
     ticket: Ticket;
@@ -109,6 +111,14 @@ const App: React.FC = () => {
                 </p>
 
                 <div id="message-box" className="text-center text-red-600 font-medium h-5 mb-2"></div>
+
+                <div className='flex justify-start mb-2'>
+                    <ButtonGroup>
+                        <Button variant="outline"> Ticket </Button>
+                        <Button variant="outline"> TimeIn/Out</Button>
+                    </ButtonGroup>
+                </div>
+
 
                 {/* Timer + Input */}
                 <div className="bg-indigo-50 border rounded-xl p-4 sm:p-6 shadow">
