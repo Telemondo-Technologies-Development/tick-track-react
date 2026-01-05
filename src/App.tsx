@@ -139,14 +139,10 @@ const App: React.FC = () => {
 
         <div id="message-box" className="text-center text-red-600 font-medium h-5 mb-2"></div>
 
-        <Tabs
-          value={activeTab}
-          onValueChange={(value) => setActiveTab(value as 'ticket' | 'shift')}
-          className="mb-4"
-        >
-            <TabsList >
-            <TabsTrigger value="ticket">Ticket</TabsTrigger>
-            <TabsTrigger value="shift">Time In / Out</TabsTrigger>
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'ticket' | 'shift')}className="mb-4">
+            <TabsList className="grid grid-cols-2 w-full max-w-md mx-auto">
+            <TabsTrigger value="ticket" className="text-sm sm:text-base py-2">Ticket</TabsTrigger>
+            <TabsTrigger value="shift" className="text-sm sm:text-base py-2">Time In / Out</TabsTrigger>
             </TabsList>
 
           <TabsContent value="ticket">
@@ -161,9 +157,14 @@ const App: React.FC = () => {
                 disabled={step !== "new"}
                 className="w-full p-3 rounded-lg border text-base sm:text-lg shadow-inner focus:ring-4 focus:ring-indigo-400 disabled:bg-gray-300"
               />
-              <div className="text-center mt-6 p-6 bg-gray-900 rounded-xl text-green-400 shadow-lg">
-                <span className="text-5xl sm:text-6xl md:text-7xl font-bold tracking-wide">{currentDurationDisplay}</span>
-              </div>
+                <div className="mt-6 bg-gray-900 rounded-xl shadow-lg w-full max-w-md mx-auto p-4">
+                <div className="flex items-center justify-center overflow-hidden">
+                    <span
+                    className="text-green-400 font-mono font-bold tracking-wider leading-none w-full text-center text-[clamp(2rem,7vw,3.5rem)] sm:text-[clamp(2.5rem,6vw,4rem)] md:text-[clamp(3rem,5vw,4.5rem)]">
+                    {currentDurationDisplay}
+                    </span>
+                </div>
+                </div>
               <div className="mt-6 flex flex-col sm:flex-row gap-3">
                 {step === "new" && (
                   <button
