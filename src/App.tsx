@@ -54,6 +54,10 @@ const App: React.FC = () => {
   const [ticketToDeleteId, setTicketToDeleteId] = useState<number | null>(null);
   const [shiftToDeleteId, setShiftToDeleteId] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<'ticket' | 'shift'>('ticket');
+  const [showHistory, setShowHistory] = useState(false);
+  const [showShiftHistory, setShowShiftHistory] = useState(false);
+
+
 
 
   const {
@@ -143,6 +147,7 @@ const App: React.FC = () => {
             <TabsList className="grid grid-cols-2 w-full max-w-md mx-auto">
             <TabsTrigger value="ticket" className="text-sm sm:text-base py-2">Ticket</TabsTrigger>
             <TabsTrigger value="shift" className="text-sm sm:text-base py-2">Time In / Out</TabsTrigger>
+            
             </TabsList>
 
           <TabsContent value="ticket">
@@ -202,33 +207,49 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            {/* Ticket History */}
-            <h2 className="text-xl sm:text-2xl font-bold mt-8 mb-4">History</h2>
-            {tickets.length === 0 && (
-              <div className="p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded-md">
-                No tickets yet — start your first timer above.
-              </div>
-            )}
-            <div className="space-y-3 mt-3">
-              {tickets.map((ticket) => (
-                <div key={ticket.id} className="bg-white border rounded-lg shadow p-4 flex justify-between items-center">
-                  <div className="w-2/3">
-                    <p className="font-semibold text-gray-900 truncate">{ticket.name}</p>
-                    <p className="text-xs text-gray-500">{new Date(ticket.startTime).toLocaleString()}</p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="font-bold text-lg text-indigo-700">{formatDuration(ticket.durationMs)}</span>
-                    <button
-                      onClick={() => ticket.id && setTicketToDeleteId(ticket.id)}
-                      className="p-2 bg-red-100 text-red-600 rounded-full hover:bg-red-200"
-                      aria-label={`Delete ticket ${ticket.name}`}
-                    >
-                      🗑️
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+
+                {/* Ticket History */}
+                <h2
+                className="text-xl sm:text-2xl font-bold mt-8 mb-4 cursor-pointer text-indigo-700 hover:underline"
+                onClick={() => setShowHistory(!showHistory)}
+                >
+                History
+                </h2>
+
+                {showHistory && (
+                <>
+                    {tickets.length === 0 ? (
+                    <div className="p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded-md">
+                        No tickets yet — start your first timer above.
+                    </div>
+                    ) : (
+                    <div className="space-y-3 mt-3">
+                        {tickets.map((ticket) => (
+                        <div
+                            key={ticket.id}
+                            className="bg-white border rounded-lg shadow p-4 flex justify-between items-center"
+                        >
+                            <div className="w-2/3">
+                            <p className="font-semibold text-gray-900 truncate">{ticket.name}</p>
+                            <p className="text-xs text-gray-500">{new Date(ticket.startTime).toLocaleString()}</p>
+                            </div>
+                            <div className="flex items-center gap-3">
+                            <span className="font-bold text-lg text-indigo-700">{formatDuration(ticket.durationMs)}</span>
+                            <button
+                                onClick={() => ticket.id && setTicketToDeleteId(ticket.id)}
+                                className="p-2 bg-red-100 text-red-600 rounded-full hover:bg-red-200"
+                                aria-label={`Delete ticket ${ticket.name}`}
+                            >
+                                🗑️
+                            </button>
+                            </div>
+                        </div>
+                        ))}
+                    </div>
+                    )}
+                </>
+                )}
+
           </TabsContent>
 
           <TabsContent value="shift">
@@ -281,35 +302,51 @@ const App: React.FC = () => {
             </div>
 
             {/* Shift History */}
-            <h2 className="text-xl sm:text-2xl font-bold mt-8 mb-4">Shift History</h2>
-            {shifts.length === 0 && (
-              <div className="p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded-md">
-                No shifts yet — start your first shift above.
-              </div>
-            )}
-            <div className="space-y-3 mt-3">
-              {shifts.map((s) => (
-                <div key={s.id} className="bg-white border rounded-lg shadow p-4 flex justify-between items-center">
-                  <div>
-                    <p className="font-semibold text-gray-900">{s.userName}</p>
-                    <p className="text-xs text-gray-500">In: {new Date(s.timeIn).toLocaleString()}</p>
-                    {s.timeOut && (
-                      <p className="text-xs text-gray-500">Out: {new Date(s.timeOut).toLocaleString()}</p>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-3">
-                    {s.durationMs && <span className="font-bold text-lg text-yellow-700">{formatDuration(s.durationMs)}</span>}
-                    <button
-                      onClick={() => s.id && setShiftToDeleteId(s.id)}
-                      className="p-2 bg-red-100 text-red-600 rounded-full hover:bg-red-200"
-                      aria-label={`Delete shift of ${s.userName}`}
-                    >
-                      🗑️
-                    </button>
-                  </div>
+            <h2
+            className="text-xl sm:text-2xl font-bold mt-8 mb-4 cursor-pointer text-yellow-700 hover:underline"
+            onClick={() => setShowShiftHistory(!showShiftHistory)}
+            >
+            Shift History
+            </h2>
+
+            {showShiftHistory && (
+            <>
+                {shifts.length === 0 ? (
+                <div className="p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded-md">
+                    No shifts yet — start your first shift above.
                 </div>
-              ))}
-            </div>
+                ) : (
+                <div className="space-y-3 mt-3">
+                    {shifts.map((s) => (
+                    <div
+                        key={s.id}
+                        className="bg-white border rounded-lg shadow p-4 flex justify-between items-center"
+                    >
+                        <div>
+                        <p className="font-semibold text-gray-900">{s.userName}</p>
+                        <p className="text-xs text-gray-500">In: {new Date(s.timeIn).toLocaleString()}</p>
+                        {s.timeOut && (
+                            <p className="text-xs text-gray-500">Out: {new Date(s.timeOut).toLocaleString()}</p>
+                        )}
+                        </div>
+                        <div className="flex items-center gap-3">
+                        {s.durationMs && (
+                            <span className="font-bold text-lg text-yellow-700">{formatDuration(s.durationMs)}</span>
+                        )}
+                        <button
+                            onClick={() => s.id && setShiftToDeleteId(s.id)}
+                            className="p-2 bg-red-100 text-red-600 rounded-full hover:bg-red-200"
+                            aria-label={`Delete shift of ${s.userName}`}
+                        >
+                            🗑️
+                        </button>
+                        </div>
+                    </div>
+                    ))}
+                </div>
+                )}
+            </>
+            )}
           </TabsContent>
         </Tabs>
       </div>
