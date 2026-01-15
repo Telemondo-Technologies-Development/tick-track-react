@@ -1,10 +1,15 @@
 import React, { useMemo, useState } from 'react';
-import db, { Ticket } from './db/appDB';
+import db from './db/appDB';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useTimer } from './hooks/useTimer';
 import { useShiftTimer } from './hooks/useShiftTimer';
 import { formatDuration } from './utils/timeUtils';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import TicketHistory from "./components/TicketHistory";
+import ShiftHistory from "./components/ShiftHistory";
+import ShiftUI from "./ShiftUi";
+import TicketUI from "./TicketUi";
+
 
 interface DeleteConfirmationModalProps {
   name: string;
@@ -150,204 +155,47 @@ const App: React.FC = () => {
             
             </TabsList>
 
-          <TabsContent value="ticket">
-            {/* Ticket UI */}
-            <div className="bg-indigo-50 border rounded-xl p-4 sm:p-6 shadow">
-              <label className="text-sm font-medium text-gray-700 block mb-2">Ticket Name</label>
-              <input
-                type="text"
-                value={ticketName}
-                onChange={(e) => setTicketName(e.target.value)}
-                placeholder="e.g. Ticket Name"
-                disabled={step !== "new"}
-                className="w-full p-3 rounded-lg border text-base sm:text-lg shadow-inner focus:ring-4 focus:ring-indigo-400 disabled:bg-gray-300"
+            <TabsContent value="ticket">
+              {/* Ticket UI */}
+              <TicketUI
+                ticketName={ticketName}
+                setTicketName={setTicketName}
+                step={step}
+                currentDurationDisplay={currentDurationDisplay}
+                handleStartTimer={handleStartTimer}
+                handleEndTimer={handleEndTimer}
+                handleSave={handleSave}
+                handleCancel={handleCancel}
               />
-                <div className="mt-6 bg-gray-900 rounded-xl shadow-lg w-full max-w-md mx-auto p-4">
-                <div className="flex items-center justify-center overflow-hidden">
-                    <span
-                    className="text-green-400 font-mono font-bold tracking-wider leading-none w-full text-center text-[clamp(2rem,7vw,3.5rem)] sm:text-[clamp(2.5rem,6vw,4rem)] md:text-[clamp(3rem,5vw,4.5rem)]">
-                    {currentDurationDisplay}
-                    </span>
-                </div>
-                </div>
-              <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                {step === "new" && (
-                  <button
-                    onClick={handleStartTimer}
-                    disabled={!ticketName.trim()}
-                    className="w-full py-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 disabled:bg-gray-400"
-                  >
-                    START
-                  </button>
-                )}
-                {step === "running" && (
-                  <button
-                    onClick={handleEndTimer}
-                    className="w-full py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700"
-                  >
-                    STOP
-                  </button>
-                )}
-                {step === "stopped" && (
-                  <>
-                    <button
-                      onClick={handleSave}
-                      className="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700"
-                    >
-                      SAVE
-                    </button>
-                    <button
-                      onClick={handleCancel}
-                      className="w-full py-3 bg-gray-300 text-gray-800 rounded-xl font-bold hover:bg-gray-400"
-                    >
-                      CANCEL
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-
-
-                {/* Ticket History */}
-                <h2
-                className="text-xl sm:text-2xl font-bold mt-8 mb-4 cursor-pointer text-indigo-700 hover:underline"
-                onClick={() => setShowHistory(!showHistory)}
-                >
-                History
-                </h2>
-
-                {showHistory && (
-                <>
-                    {tickets.length === 0 ? (
-                    <div className="p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded-md">
-                        No tickets yet — start your first timer above.
-                    </div>
-                    ) : (
-                    <div className="space-y-3 mt-3">
-                        {tickets.map((ticket) => (
-                        <div
-                            key={ticket.id}
-                            className="bg-white border rounded-lg shadow p-4 flex justify-between items-center"
-                        >
-                            <div className="w-2/3">
-                            <p className="font-semibold text-gray-900 truncate">{ticket.name}</p>
-                            <p className="text-xs text-gray-500">{new Date(ticket.startTime).toLocaleString()}</p>
-                            </div>
-                            <div className="flex items-center gap-3">
-                            <span className="font-bold text-lg text-indigo-700">{formatDuration(ticket.durationMs)}</span>
-                            <button
-                                onClick={() => ticket.id && setTicketToDeleteId(ticket.id)}
-                                className="p-2 bg-red-100 text-red-600 rounded-full hover:bg-red-200"
-                                aria-label={`Delete ticket ${ticket.name}`}
-                            >
-                                🗑️
-                            </button>
-                            </div>
-                        </div>
-                        ))}
-                    </div>
-                    )}
-                </>
-                )}
-
-          </TabsContent>
-
-          <TabsContent value="shift">
-            {/* Shift UI */}
-            <div className="bg-yellow-50 border rounded-xl p-4 sm:p-6 shadow mt-6">
-              <label className="text-sm font-medium text-gray-700 block mb-2">User Name</label>
-              <input
-                type="text"
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
-                placeholder="Enter your name"
-                disabled={shiftStep !== "new"}
-                className="w-full p-3 rounded-lg border text-base sm:text-lg shadow-inner focus:ring-4 focus:ring-yellow-400 disabled:bg-gray-300"
+            {/* Ticket History */}
+            <TicketHistory
+                tickets={tickets}
+                showHistory={showHistory}
+                setShowHistory={setShowHistory}
+                setTicketToDeleteId={setTicketToDeleteId}
               />
-              <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                {shiftStep === "new" && (
-                  <button
-                    onClick={handleTimeIn}
-                    disabled={!userName.trim()}
-                    className="w-full py-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 disabled:bg-gray-400"
-                  >
-                    TIME IN
-                  </button>
-                )}
-                {shiftStep === "started" && (
-                  <button
-                    onClick={handleTimeOut}
-                    className="w-full py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700"
-                  >
-                    TIME OUT
-                  </button>
-                )}
-                {shiftStep === "stopped" && (
-                  <>
-                    <button
-                      onClick={saveShift}
-                      className="w-full py-3 bg-yellow-600 text-white rounded-xl font-bold hover:bg-yellow-700"
-                    >
-                      SAVE
-                    </button>
-                    <button
-                      onClick={cancelShift}
-                      className="w-full py-3 bg-gray-300 text-gray-800 rounded-xl font-bold hover:bg-gray-400"
-                    >
-                      CANCEL
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
+            </TabsContent>
 
-            {/* Shift History */}
-            <h2
-            className="text-xl sm:text-2xl font-bold mt-8 mb-4 cursor-pointer text-yellow-700 hover:underline"
-            onClick={() => setShowShiftHistory(!showShiftHistory)}
-            >
-            Shift History
-            </h2>
+            <TabsContent value="shift">
+              {/* Shift UI */}
+              <ShiftUI
+                userName={userName}
+                setUserName={setUserName}
+                shiftStep={shiftStep}
+                handleTimeIn={handleTimeIn}
+                handleTimeOut={handleTimeOut}
+                saveShift={saveShift}
+                cancelShift={cancelShift}
+              />
 
-            {showShiftHistory && (
-            <>
-                {shifts.length === 0 ? (
-                <div className="p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded-md">
-                    No shifts yet — start your first shift above.
-                </div>
-                ) : (
-                <div className="space-y-3 mt-3">
-                    {shifts.map((s) => (
-                    <div
-                        key={s.id}
-                        className="bg-white border rounded-lg shadow p-4 flex justify-between items-center"
-                    >
-                        <div>
-                        <p className="font-semibold text-gray-900">{s.userName}</p>
-                        <p className="text-xs text-gray-500">In: {new Date(s.timeIn).toLocaleString()}</p>
-                        {s.timeOut && (
-                            <p className="text-xs text-gray-500">Out: {new Date(s.timeOut).toLocaleString()}</p>
-                        )}
-                        </div>
-                        <div className="flex items-center gap-3">
-                        {s.durationMs && (
-                            <span className="font-bold text-lg text-yellow-700">{formatDuration(s.durationMs)}</span>
-                        )}
-                        <button
-                            onClick={() => s.id && setShiftToDeleteId(s.id)}
-                            className="p-2 bg-red-100 text-red-600 rounded-full hover:bg-red-200"
-                            aria-label={`Delete shift of ${s.userName}`}
-                        >
-                            🗑️
-                        </button>
-                        </div>
-                    </div>
-                    ))}
-                </div>
-                )}
-            </>
-            )}
-          </TabsContent>
+              {/* Shift History */}
+              <ShiftHistory
+                shifts={shifts}
+                showShiftHistory={showShiftHistory}
+                setShowShiftHistory={setShowShiftHistory}
+                setShiftToDeleteId={setShiftToDeleteId}
+              />
+            </TabsContent>
         </Tabs>
       </div>
 
