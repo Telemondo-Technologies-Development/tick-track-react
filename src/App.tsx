@@ -6,8 +6,8 @@ import { useShiftTimer } from './hooks/useShiftTimer';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import TicketHistory from "./components/TicketHistory";
 import ShiftHistory from "./components/ShiftHistory";
-import ShiftUI from "./ShiftUi";
-import TicketUI from "./TicketUi";
+import ShiftUI from "./Pages/ShiftUi";
+import TicketUI from "./Pages/TicketUi";
 
 const App: React.FC = () => {
   const tickets = useLiveQuery(() => db.tickets.orderBy('id').reverse().toArray(), []);
@@ -24,7 +24,7 @@ const App: React.FC = () => {
     setTicketName,
     elapsedTime,
     tempTicket,
-    step: ticketStep, // Renamed to avoid conflict
+    step: ticketStep, 
     handleStartTimer,
     handleEndTimer,
     handleSave,
@@ -34,7 +34,7 @@ const App: React.FC = () => {
   const {
     userName,
     setUserName,
-    step: shiftStep, // Renamed to avoid conflict
+    step: shiftStep, 
     handleTimeIn,
     handleTimeOut,
     saveShift,
