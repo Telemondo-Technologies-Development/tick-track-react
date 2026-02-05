@@ -1,24 +1,36 @@
-import Dexie, { Table } from 'dexie';
+import Dexie from 'dexie';
 
-    export interface Ticket {
-        id?: number; 
-        name: string;
-        startTime: number;
-        endTime: number;
-        durationMs: number;
-    }
+export interface Shift {
+  id?: number;
+  userName: string;
+  timeIn: number; 
+  timeOut?: number; 
+  durationMs?: number;
+}
 
-    export class TickTrackDB extends Dexie {
-        tickets!: Table<Ticket, number>;
+export interface Ticket {
+  id?: number;
+  name: string;
+  startTime: number;
+  endTime: number;
+  durationMs: number;
+}
 
-        constructor() {
-            super( 'TrickTrackDB');
-            this.version(2).stores({
-                tickets: '++id, name, startTime, endTime, durationMs'
-            });
-        }
-    }
+class AppDB extends Dexie {
+  tickets: Dexie.Table<Ticket, number>;
+  shifts: Dexie.Table<Shift, number>;
 
+  constructor() {
+    super('AppDB');
+    this.version(1).stores({
+      tickets: '++id,name,startTime,durationMs',
+      shifts: '++id,userName,timeIn,timeOut,durationMs'
+    });
 
-const db = new TickTrackDB();
+    this.tickets = this.table('tickets');
+    this.shifts = this.table('shifts');
+  }
+}
+
+const db = new AppDB();
 export default db;
